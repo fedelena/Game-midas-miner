@@ -1,0 +1,6 @@
+﻿  Tablero.cpp
+c:\repo\game\game\vs2012 base project\msvc\tablero.cpp(18): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  main.cpp
+  Generating Code...
+  Worktest.vcxproj -> C:\repo\Game\Game\vs2012 base project\bin\Worktest.exe
+  Worktest.vcxproj -> C:\repo\Game\Game\vs2012 base project\bin\Worktest.pdb (Full PDB)

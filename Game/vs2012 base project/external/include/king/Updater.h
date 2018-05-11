@@ -8,6 +8,7 @@ namespace King {
 	class Updater {
 	public:
 		virtual void Update() = 0;
+		virtual void MouseEvent() = 0;
 	protected:
 		~Updater() {}
 	};

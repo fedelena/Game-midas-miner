@@ -1,58 +1,72 @@
-#define GLM_FORCE_RADIANS 
+#define GLM_FORCE_RADIANS
 
 #include <king/Engine.h>
 #include <king/Updater.h>
+#include "..\\msvc\Tablero.h"
 
-//**********************************************************************
+//#include <c:\Users\lautaro.losio\source\Game-midas-miner\Game\vs2012 base project\msvc\Tablero.h>
+
+//---------------------------------------------------------------------------------------------------
 
 class ExampleGame : public King::Updater {
+
+
+
 public:
 
 	ExampleGame()
 		: mEngine("./assets")
 		, mRotation(0.0f)
-		, mYellowDiamondX(100.0f)
-		, mYellowDiamondY(100.0f) {
+		, mGreenDiamondX(100.0f)
+		, mGreenDiamondY(100.0f) {
+	}
+
+	void MouseEvent()
+	{
+		if (mEngine.GetMouseButtonDown()) 
+		{
+			float fromX = mEngine.GetMouseX();
+			float fromY = mEngine.GetMouseY();
+			mTablero.SeleccionarGema(fromX, fromY);
+
+		}
+		else
+		{
+			float toX = mEngine.GetMouseX();
+			float toY = mEngine.GetMouseY();
+			mTablero.LiberarGema(toX, toY);
+		}
+
+	}
+
+	void Update() {	
+		mTablero.DibujaMatriz(); 	
 	}
 
 	void Start() {
-		mEngine.Start(*this);
+		mTablero.SetEnginee(&mEngine);
+		mTablero.PupularMatriz();
+		mEngine.Start(*this);	
 	}
 
-	void Update() {
-		mEngine.Render(King::Engine::TEXTURE_GREEN, 650.0f, 100.0f);
-		mEngine.Render(King::Engine::TEXTURE_RED, 100.0f, 450.0f);
-		mEngine.Render(King::Engine::TEXTURE_BLUE, 650.0f, 450.0f);
-
-		mEngine.Write("Green", 650.0f, 140.0f);
-		mEngine.Write("Red", 100.0f, 490.0f);
-		mEngine.Write("Blue", 650.0f, 490.0f);
-
-		const char text[] = "This rotates at 5/PI Hz";
-		mRotation += mEngine.GetLastFrameSeconds();
-		mEngine.Write(text, mEngine.GetWidth() / 2.0f, mEngine.GetHeight() / 2.0f, mRotation * 2.5f);
-
-		if (mEngine.GetMouseButtonDown()) {
-			mYellowDiamondX = mEngine.GetMouseX();
-			mYellowDiamondY = mEngine.GetMouseY();
-		}
-		mEngine.Render(King::Engine::TEXTURE_YELLOW, mYellowDiamondX, mYellowDiamondY);
-		mEngine.Write("Click to", mYellowDiamondX, mYellowDiamondY + 40.0f);
-		mEngine.Write("move me!", mYellowDiamondX, mYellowDiamondY + 70.0f);
-	}
 
 private:
 	King::Engine mEngine;
 	float mRotation;
 	float mYellowDiamondX;
 	float mYellowDiamondY;
+	float mGreenDiamondX;
+	float mGreenDiamondY;
+	Tablero mTablero;
 };
 
-//**********************************************************************
+//---------------------------------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 	ExampleGame game;
 	game.Start();
+
+	
 
 	return 0;
 }

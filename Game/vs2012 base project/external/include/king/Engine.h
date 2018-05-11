@@ -46,5 +46,6 @@ namespace King {
 	private:
 		struct EngineImplementation;
 		std::unique_ptr<EngineImplementation> mPimpl;
+		
 	};
 }

@@ -248,9 +248,11 @@ namespace King {
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 				mMouseButtonDown = true;
+				mUpdater->MouseEvent();
 				break;
 			case SDL_MOUSEBUTTONUP:
 				mMouseButtonDown = false;
+				mUpdater->MouseEvent();
 				break;
 			case SDL_MOUSEMOTION:
 				mMouseX = static_cast<float>(event.motion.x);
