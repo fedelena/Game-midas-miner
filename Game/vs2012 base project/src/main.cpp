@@ -1,56 +1,101 @@
 #define GLM_FORCE_RADIANS 
 
+#include <string>
 #include <king/Engine.h>
 #include <king/Updater.h>
+#include "CandyBoard.h"
 
 //**********************************************************************
 
-class ExampleGame : public King::Updater {
+class ExampleGame : public King::Updater 
+{
 public:
 
 	ExampleGame()
-		: mEngine("./assets")
-		, mRotation(0.0f)
-		, mYellowDiamondX(100.0f)
-		, mYellowDiamondY(100.0f) {
+		: myEngine("./assets")
+		, myBoard()
+		, swapFromX(0.0f)
+		, swapFromY(0.0f)
+	    , swapToX(0.0f)
+		, swapToY(0.0f)
+		, shouldSwap(false) 
+		, swapping(false)
+	{}
+
+	void Start()
+	{
+		myEngine.Start(*this);	
 	}
 
-	void Start() {
-		mEngine.Start(*this);
-	}
+	void Update()
+	{
+		myEngine.Render(King::Engine::TEXTURE_BACKGROUND, 20.0f, 0.0f);
+		myEngine.Write("Score: ", 70.0f, 100.0f);
+		std::string scoreStr = std::to_string(myBoard.getScore());
+		myEngine.Write(scoreStr.c_str(), 180.0f, 100.0f);
+		
+		switch (myBoard.getStatus())
+		{
 
-	void Update() {
-		mEngine.Render(King::Engine::TEXTURE_GREEN, 650.0f, 100.0f);
-		mEngine.Render(King::Engine::TEXTURE_RED, 100.0f, 450.0f);
-		mEngine.Render(King::Engine::TEXTURE_BLUE, 650.0f, 450.0f);
+			case CandyBoard::CandyGameStatus::IDLE:
+				if (myEngine.GetMouseButtonDown() && !swapping) {
+					swapFromX = myEngine.GetMouseX();
+					swapFromY = myEngine.GetMouseY();
+					swapping = true;
+				}
 
-		mEngine.Write("Green", 650.0f, 140.0f);
-		mEngine.Write("Red", 100.0f, 490.0f);
-		mEngine.Write("Blue", 650.0f, 490.0f);
+				if (!myEngine.GetMouseButtonDown() && swapping) {
+					swapToX = myEngine.GetMouseX();
+					swapToY = myEngine.GetMouseY();
+					shouldSwap = true;
+					swapping = false;
+				}
 
-		const char text[] = "This rotates at 5/PI Hz";
-		mRotation += mEngine.GetLastFrameSeconds();
-		mEngine.Write(text, mEngine.GetWidth() / 2.0f, mEngine.GetHeight() / 2.0f, mRotation * 2.5f);
+				if (shouldSwap)
+				{
+					myBoard.swap(swapFromX, swapFromY, swapToX, swapToY);
+					shouldSwap = false;
+					if (myBoard.checkSwap(swapFromY, swapFromX) || myBoard.checkSwap(swapToY, swapToX))
+						myBoard.setStatus(CandyBoard::CandyGameStatus::CHECKING);
+					else
+						myBoard.swap(swapFromX, swapFromY, swapToX, swapToY);
+				}
+				break;
 
-		if (mEngine.GetMouseButtonDown()) {
-			mYellowDiamondX = mEngine.GetMouseX();
-			mYellowDiamondY = mEngine.GetMouseY();
+
+			case CandyBoard::CandyGameStatus::CHECKING:
+				bool hasHorizontalHoles = false;
+				bool hasVerticalHoles = false;
+				do
+				{
+					hasHorizontalHoles = myBoard.findHorizontalChains();
+					hasVerticalHoles = myBoard.findVerticalChains();
+					if(hasHorizontalHoles || hasVerticalHoles)
+						myBoard.fillingHoles();
+				} while (hasVerticalHoles || hasHorizontalHoles);
+				myBoard.setStatus(CandyBoard::CandyGameStatus::IDLE);
+				break;
 		}
-		mEngine.Render(King::Engine::TEXTURE_YELLOW, mYellowDiamondX, mYellowDiamondY);
-		mEngine.Write("Click to", mYellowDiamondX, mYellowDiamondY + 40.0f);
-		mEngine.Write("move me!", mYellowDiamondX, mYellowDiamondY + 70.0f);
+
+		myBoard.draw(myEngine);		
 	}
+
 
 private:
-	King::Engine mEngine;
-	float mRotation;
-	float mYellowDiamondX;
-	float mYellowDiamondY;
+	King::Engine myEngine;
+	CandyBoard myBoard;
+	float swapFromX;
+	float swapFromY;
+	float swapToX;
+	float swapToY;
+	bool shouldSwap;
+	bool swapping;
 };
 
 //**********************************************************************
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 	ExampleGame game;
 	game.Start();
 
